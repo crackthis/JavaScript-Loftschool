@@ -66,7 +66,17 @@ function returnFnResult(fn) {
    console.log(f()); // выведет 13
  */
 function returnCounter(number) {
+    return function summary() {
+        number += 1;
+        return  number;
+    };
 }
+
+let f = returnCounter(11);
+
+console.log(f());
+console.log(f());
+console.log(f());
 
 /*
  Задание 5 *:
@@ -77,10 +87,15 @@ function returnCounter(number) {
  Пример:
    returnArgumentsArray(1, 2, 3) вернет [1, 2, 3]
  */
-function returnArgumentsArray() {
+function returnArgumentsArray(...arr) {
+    return arr;
 }
 
+let array = returnArgumentsArray(1, 2, 3);
+console.log(array);
+
 /*
+
  Задание 6 *:
 
  Функция должна принимать другую функцию (F) и некоторое количество дополнительных аргументов
@@ -95,7 +110,14 @@ function returnArgumentsArray() {
 
    console.log(newSum()) выведет 6
  */
-function bindFunction(fn) {
+
+function sum(a, b) {
+    return a + b;
+}
+
+function bindFunction(fn, ...numbers) {
+    let i+= numbers;
+    return i;
 }
 
 export {
