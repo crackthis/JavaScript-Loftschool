@@ -67,12 +67,12 @@ function returnFnResult(fn) {
  */
 function returnCounter(number) {
     return function summary() {
-        number += 1;
-        return  number;
+        number+=1;
+        return number;
     };
 }
 
-let f = returnCounter(11);
+let f = returnCounter(0);
 
 console.log(f());
 console.log(f());
@@ -111,14 +111,21 @@ console.log(array);
    console.log(newSum()) выведет 6
  */
 
-function sum(a, b) {
-    return a + b;
+function fn(...nums) {
+    let sum = 0;
+    for(let num of nums) {
+        sum+= nums;
+    }
+    return sum;
 }
 
+
 function bindFunction(fn, ...numbers) {
-    let i+= numbers;
-    return i;
+    return () => fn(...numbers);
 }
+
+let newSum = bindFunction(fn, 2, 4);
+console.log(newSum());
 
 export {
     returnFirstArgument,
