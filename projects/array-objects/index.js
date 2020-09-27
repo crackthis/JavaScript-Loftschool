@@ -50,7 +50,15 @@ map([1, 2, 3], (el) => el ** 2);
    reduce([1, 2, 3], (all, current) => all + current) // 6
  */
 function reduce(array, fn, initial) {
+    let total = array[0];
+    for(let i = 1; i < array.length; i++) {
+        total = fn(total, array[i], i);
+    }
+    total = fn(total, initial);
+    return total;
 }
+
+reduce([1, 2, 3], (all, current) => all + current, 6);
 
 /*
  Задание 4:
@@ -61,6 +69,7 @@ function reduce(array, fn, initial) {
    upperProps({ name: 'Сергей', lastName: 'Петров' }) вернет ['NAME', 'LASTNAME']
  */
 function upperProps(obj) {
+    
 }
 
 /*
