@@ -10,16 +10,16 @@
    forEach([1, 2, 3], (el) => console.log(el))
  */
 function forEach(array, fn) {
-    return fn(array);
-}
-
-forEach([1, 2, 3], (el) => {
-    for (let elem of el) {
-        console.log(elem);
+    for (let i = 0; i < array.length; i++) {
+        fn(array[i], i, array);
     }
+};
+
+let arr = ['a', 'b', 'c', 'd', 'e'];
+
+forEach(arr, (el) => {
+    console.log(el);
 });
-
-
 
 /*
  Задание 2:
@@ -31,8 +31,14 @@ forEach([1, 2, 3], (el) => {
    map([1, 2, 3], (el) => el ** 2) // [1, 4, 9]
  */
 function map(array, fn) {
-    return fn(array);
+    let ms = [];
+    for(let i = 0; i < array.length; i++) {
+        ms[i] = fn(array[i], i, array);
+    }
+    return ms;
 }
+
+map([1, 2, 3], (el) => el ** 2);
 
 /*
  Задание 3:
