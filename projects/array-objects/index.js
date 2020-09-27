@@ -69,9 +69,18 @@ reduce([1, 2, 3], (all, current) => all + current, 6);
    upperProps({ name: 'Сергей', lastName: 'Петров' }) вернет ['NAME', 'LASTNAME']
  */
 function upperProps(obj) {
-    
+    let newObj = [];
+    let i = 0;
+    for(let key in obj) {
+        newObj[i] = key.toUpperCase();
+        i++;
+    }
+    return newObj;
 }
 
+let ms = upperProps({ name: 'Сергей', lastName: 'Петров' });
+
+console.log(ms);
 /*
  Задание 5 *:
 
@@ -84,6 +93,17 @@ function upperProps(obj) {
    console.log(obj.foo); // 4
  */
 function createProxy(obj) {
+    return new Proxy(obj, {
+        set(obj, key, value) {
+            obj[key] = Math.pow(obj[key], 2);
+            return true;
+        }
+    });
 }
+
+const obj = createProxy({});
+obj.foo = 2;
+console.log(obj);
+console.log(obj.foo);
 
 export { forEach, map, reduce, upperProps, createProxy };
