@@ -1,110 +1,183 @@
-import { randomStringArray, randomValue as random } from '../../scripts/helper';
 import {
-  bindFunction,
-  returnArgumentsArray,
-  returnCounter,
-  returnFirstArgument,
-  returnFnResult,
-  sumWithDefaults,
-} from './index';
+  randomNumberArray,
+  randomStringArray,
+  randomValue as random,
+} from '../../scripts/helper';
+import { calculator, isAllTrue, isSomeTrue, returnBadArguments } from './index';
 
-describe('ДЗ 1 - функции', () => {
-  describe('returnFirstArgument', () => {
-    it('должна возвращать переданный аргумент', () => {
-      const value = random();
-      const result = returnFirstArgument(value);
+describe('ДЗ 2 - работа с исключениями и отладчиком', () => {
+  describe('isAllTrue', () => {
+    it('должна вызывать fn для всех элементов массива', () => {
+      const array = random('array', 1);
+      const pass = [];
 
-      expect(result).toBe(value);
+      isAllTrue(array, (e) => pass.push(e));
+
+      expect(pass).toEqual(array);
+    });
+
+    it('должна вернуть true, если fn вернула true для всех элементов массива', () => {
+      const array = randomNumberArray();
+      const result = isAllTrue(array, Number.isFinite);
+
+      expect(result);
+    });
+
+    it('должна вернуть false, если fn вернула false хотя бы для одного элемента массива', () => {
+      const array = randomNumberArray();
+
+      array.push(random('string'));
+      const result = isAllTrue(array, Number.isFinite);
+
+      expect(!result);
+    });
+
+    it('должна выбросить исключение, если передан пустой массив', () => {
+      expect(() => isAllTrue([], () => {})).toThrow('empty array');
+    });
+
+    it('должна выбросить исключение, если передан не массив', () => {
+      expect(() => isAllTrue(':(', () => {})).toThrow('empty array');
+      expect(() => isAllTrue({}, () => {})).toThrow('empty array');
+    });
+
+    it('должна выбросить исключение, если fn не функция', () => {
+      const array = randomNumberArray();
+
+      expect(() => isAllTrue(array, ':(')).toThrow('fn is not a function');
     });
   });
 
-  describe('sumWithDefaults', () => {
-    it('должна возвращать сумму переданных аргументов', () => {
-      const valueA = random('number');
-      const valueB = random('number');
-      const result = sumWithDefaults(valueA, valueB);
+  describe('isSomeTrue', () => {
+    it('должна вернуть true, если fn вернула true хотя бы для одного элемента массива', () => {
+      const array = randomStringArray().concat(random('number'));
+      const result = isSomeTrue(array, Number.isFinite);
 
-      expect(result).toBe(valueA + valueB);
+      expect(result);
     });
 
-    it('значение по умолчанию второго аргумента должно быть 100', () => {
-      const value = random('number');
-      const result = sumWithDefaults(value);
+    it('должна вернуть false, если fn не вернула true хотя бы для одного элемента массива', () => {
+      const array = randomStringArray();
+      const result = isSomeTrue(array, Number.isFinite);
 
-      expect(result).toBe(value + 100);
-    });
-  });
-
-  describe('returnFnResult', () => {
-    it('должна возвращать результат вызова переданной функции', () => {
-      function fn() {
-        return value;
-      }
-
-      const value = random();
-      const result = returnFnResult(fn); // result = fn() -> value
-
-      expect(result).toBe(value);
-    });
-  });
-
-  describe('returnCounter', () => {
-    it('должна возвращать функцию', () => {
-      const result = returnCounter();
-
-      expect(typeof result).toBe('function');
+      expect(!result);
     });
 
-    it('возвращаемая функция должна увеличивать переданное число на единицу при каждом вызове', () => {
-      const value = random('number');
-      const result = returnCounter(value);
-
-      expect(result()).toBe(value + 1);
-      expect(result()).toBe(value + 2);
-      expect(result()).toBe(value + 3);
+    it('должна выбросить исключение, если передан пустой массив', () => {
+      expect(() => isSomeTrue([], () => {})).toThrow('empty array');
     });
 
-    it('значение аргумента должно быть 0 по умолчанию', () => {
-      const result = returnCounter();
+    it('должна выбросить исключение, если передан не массив', () => {
+      expect(() => isSomeTrue(':(', () => {})).toThrow('empty array');
+      expect(() => isSomeTrue({}, () => {})).toThrow('empty array');
+    });
 
-      expect(result()).toBe(1);
-      expect(result()).toBe(2);
-      expect(result()).toBe(3);
+    it('должна выбросить исключение, если fn не функция', () => {
+      const array = randomNumberArray();
+
+      expect(() => isSomeTrue(array, ':(')).toThrow('fn is not a function');
     });
   });
 
-  describe('returnArgumentsArray', () => {
-    it('должна возвращать переданные аргументы в виде массива', () => {
-      const value = random('array', 1);
-      const result = returnArgumentsArray(...value);
+  describe('returnBadArguments', () => {
+    it('должна вызывать fn для всех элементов массива', () => {
+      const array = random('array', 1);
+      const pass = [];
 
-      expect(result).toEqual(value);
+      returnBadArguments((e) => pass.push(e), ...array);
+
+      expect(pass).toEqual(array);
     });
 
-    it('должна возвращать пустой массив если нет аргументов', () => {
-      const result = returnArgumentsArray();
+    it('должна вернуть массив с аргументами, для которых fn выбрасила исключение', () => {
+      const evenNumbers = randomNumberArray('even');
+      const oddNumbers = randomNumberArray('odd');
+      const fn = (a) => {
+        if (a % 2 !== 0) {
+          throw new Error('not even');
+        }
+      };
+      const result = returnBadArguments(fn, ...evenNumbers, ...oddNumbers);
+
+      expect(result).toEqual(oddNumbers);
+    });
+
+    it('должна вернуть массив пустой массив, если не передано дополнительных аргументов', () => {
+      const fn = () => ':)';
+      const result = returnBadArguments(fn);
 
       expect(result.length).toBe(0);
     });
+
+    it('должна выбросить исключение, если fn не функция', () => {
+      expect(() => returnBadArguments(':(')).toThrow('fn is not a function');
+    });
   });
 
-  describe('bindFunction', () => {
-    const valuesArr = randomStringArray();
+  describe('calculator', () => {
+    it('должна возвращать объект с методами', () => {
+      const calc = calculator();
 
-    function fn(...valuesArr) {
-      return [...arguments].join('');
-    }
-
-    it('должна возвращать функцию', () => {
-      const result = bindFunction(fn);
-
-      expect(typeof result).toBe('function');
+      expect(Object.keys(calc)).toEqual(['sum', 'dif', 'div', 'mul']);
     });
 
-    it('должна привязывать любое кол-во аргументов возвращаемой функции', () => {
-      const result = bindFunction(fn, ...valuesArr);
+    it('метод sum должен складывать аргументы', () => {
+      const initialValue = random('number');
+      const calc = calculator(initialValue);
+      const args = randomNumberArray();
 
-      expect(result()).toBe(valuesArr.join(''));
+      expect(calc.sum(...args)).toBe(
+        args.reduce((prev, current) => prev + current, initialValue)
+      );
+    });
+
+    it('метод dif должен вычитать аргументы', () => {
+      const initialValue = random('number');
+      const calc = calculator(initialValue);
+      const args = randomNumberArray();
+
+      expect(calc.dif(...args)).toBe(
+        args.reduce((prev, current) => prev - current, initialValue)
+      );
+    });
+
+    it('метод div должен делить аргументы', () => {
+      const initialValue = random('number');
+      const calc = calculator(initialValue);
+      const args = randomNumberArray();
+
+      expect(calc.div(...args)).toBe(
+        args.reduce((prev, current) => prev / current, initialValue)
+      );
+    });
+
+    it('метод div должен выбрасывать исключение, если хотя бы один из аргументов равен 0', () => {
+      const initialValue = random('number');
+      const calc = calculator(initialValue);
+      const args = [...randomNumberArray(), 0];
+
+      expect(() => calc.div(...args)).toThrow('division by 0');
+    });
+
+    it('метод mul должен умножать аргументы', () => {
+      const initialValue = random('number');
+      const calc = calculator(initialValue);
+      const args = randomNumberArray();
+
+      expect(calc.mul(...args)).toBe(
+        args.reduce((prev, current) => prev * current, initialValue)
+      );
+    });
+
+    it('функция должна выбрасывать исключение, если number не является числом', () => {
+      expect(() => calculator(':(')).toThrow('number is not a number');
+    });
+
+    it('значение по умолчанию для аргумента number должно быть равно 0', () => {
+      const calc = calculator();
+      const args = randomNumberArray();
+
+      expect(calc.sum(...args)).toBe(args.reduce((prev, current) => prev + current));
     });
   });
 });
