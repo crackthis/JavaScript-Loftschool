@@ -88,7 +88,6 @@ function returnBadArguments(fn, ...args) {
                 throw new Error("false");
             }
         } catch (e) {
-            console.log(`Wrong ${key} number`)
             arr[i] = key;
             i++;
         }
@@ -101,7 +100,6 @@ let badArgs = returnBadArguments((en) => {
      throw new Error('wrong num');
     }
 }, 14, 15, 3, 2, 17);
-console.log(badArgs);
 
 /*
  Задание 4:
@@ -121,7 +119,43 @@ console.log(badArgs);
    - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
 function calculator(number = 0) {
+    if (!Number.isFinite((number))) {
+        throw new Error("number is not a number");
+    }
+    return {
+        sum(...args) {
+            let result = number;
+            for (const key of args) {
+                result += key;
+            }
+            return result;
+        },
+        dif(...args) {
+            let result = number;
+            for(const key of args) {
+                result -= key;
+            }
+            return result;
+        },
+        div(...args) {
+            let result = number;
+            for(const key of args) {
+                if(key == 0) {
+                    throw new Error('division by 0');
+                }
+                result /= key;
+            }
+            return result;
+        },
+        mul(...args) {
+            let result = number;
+            for(const key of args) {
 
+                result *= key;
+            }
+            return result;
+        }
+    }
 }
 
 /* При решении задач, постарайтесь использовать отладчик */
