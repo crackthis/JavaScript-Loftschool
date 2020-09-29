@@ -76,7 +76,32 @@ function isSomeTrue(array, fn) {
    - fn не является функцией (с текстом "fn is not a function")
  */
 function returnBadArguments(fn, ...args) {
+    if(typeof fn !== 'function') {
+        throw new Error('fn is not a function');
+    }
+    let arr = [];
+    let i = 0;
+    let key;
+    for(key of args) {
+        try {
+            if (fn(key)) {
+                throw new Error("false");
+            }
+        } catch (e) {
+            console.log(`Wrong ${key} number`)
+            arr[i] = key;
+            i++;
+        }
+    }
+    return arr;
 }
+
+let badArgs = returnBadArguments((en) => {
+    if(en<10) {
+     throw new Error('wrong num');
+    }
+}, 14, 15, 3, 2, 17);
+console.log(badArgs);
 
 /*
  Задание 4:
@@ -96,6 +121,7 @@ function returnBadArguments(fn, ...args) {
    - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
 function calculator(number = 0) {
+
 }
 
 /* При решении задач, постарайтесь использовать отладчик */
