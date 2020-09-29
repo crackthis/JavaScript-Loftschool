@@ -65,14 +65,14 @@ function returnFnResult(fn) {
    console.log(f()); // выведет 12
    console.log(f()); // выведет 13
  */
-function returnCounter(number) {
+function returnCounter(number = 0) {
     return function summary() {
         number+=1;
         return number;
     };
 }
 
-let f = returnCounter(0);
+let f = returnCounter(1);
 
 console.log(f());
 console.log(f());
