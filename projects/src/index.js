@@ -30,6 +30,7 @@
  */
 
 import './towns.html';
+import {loadAndSortTowns} from "./functions";
 
 const homeworkContainer = document.querySelector('#homework-container');
 
@@ -40,6 +41,7 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
+    return loadAndSortTowns();
 }
 
 /*
@@ -54,6 +56,10 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
+    let str1 = full.toLowerCase();
+    let str2 = chunk.toLowerCase();
+    if(str1.indexOf(str2) !== -1) {return false;}
+    else {return true;}
 }
 
 /* Блок с надписью "Загрузка" */
@@ -69,13 +75,24 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
+let towns = [];
+
 retryButton.addEventListener('click', () => {
+
 });
 
 filterInput.addEventListener('input', function () {
+
 });
 
 loadingFailedBlock.classList.add('hidden');
 filterBlock.classList.add('hidden');
+
+async function load() {
+    try {
+        towns = await loadTowns();
+        
+    }
+}
 
 export { loadTowns, isMatching };
