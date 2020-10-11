@@ -56,10 +56,7 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
-    let str1 = full.toLowerCase();
-    let str2 = chunk.toLowerCase();
-    if(str1.indexOf(str2) !== -1) {return false;}
-    else {return true;}
+    return full.toLowerCase().includes(chunk.toLowerCase());
 }
 
 /* Блок с надписью "Загрузка" */
@@ -78,21 +75,43 @@ const filterResult = homeworkContainer.querySelector('#filter-result');
 let towns = [];
 
 retryButton.addEventListener('click', () => {
-
+    tryToLoad();
 });
 
 filterInput.addEventListener('input', function () {
-
+    updateFilter(this.value);
 });
 
 loadingFailedBlock.classList.add('hidden');
 filterBlock.classList.add('hidden');
 
-async function load() {
+async function tryToLoad() {
     try {
         towns = await loadTowns();
-        
+        loadingBlock.classList.add('hidden');
+        loadingFailedBlock.classList.add('hidden');
+        filterBlock.classList.remove('hidden');
+    } catch (e) {
+        loadingBlock.classList.add('hidden');
+        loadingFailedBlock.classList.remove('hidden');
     }
 }
+
+function updateFilter(filterValue) {
+    filterResult.innerHTML = '';
+
+    const fragment = document.createDocumentFragment();
+
+    for (const town of towns) {
+        if(filterValue && isMatching(town.name, filterValue)) {
+            const townDiv = document.createElement('div');
+            townDiv.textContent = town.name;
+            fragment.append(townDiv);
+        }
+    }
+}
+
+
+tryToLoad();
 
 export { loadTowns, isMatching };
