@@ -1,52 +1,106 @@
-import { delayPromise, loadAndSortTowns } from './functions';
+import {
+  addListener,
+  delegate,
+  emulateClick,
+  once,
+  removeListener,
+  skipDefault,
+} from './functions';
 
-const hasOwnProperty = Object.prototype.hasOwnProperty;
+describe('ДЗ 5.1 - DOM Events', () => {
+  describe('addListener', () => {
+    it('должна добавлять обработчик событий элемента', () => {
+      const target = document.createElement('div');
+      const eventName = 'click';
+      const fn = jest.fn();
 
-describe('ДЗ 6.1 - Асинхронность и работа с сетью', () => {
-  describe('delayPromise', () => {
-    it('должна возвращать Promise', () => {
-      const result = delayPromise(1);
+      addListener(eventName, target, fn);
 
-      expect(result).toBeInstanceOf(Promise);
-    });
-
-    it('Promise должен быть resolved через указанное количество секунд', (done) => {
-      const result = delayPromise(1);
-      const startTime = new Date();
-
-      result
-        .then(() => {
-          expect(new Date() - startTime).toBeGreaterThanOrEqual(1000);
-          done();
-        })
-        .catch(done);
+      target.dispatchEvent(new CustomEvent(eventName));
+      expect(fn).toBeCalled();
     });
   });
 
-  describe('loadAndSortTowns', () => {
-    it('должна возвращать Promise', () => {
-      const result = loadAndSortTowns();
+  describe('removeListener', () => {
+    it('должна удалять обработчик событий элемента', () => {
+      const target = document.createElement('div');
+      const eventName = 'click';
+      const fn = jest.fn();
 
-      expect(result).toBeInstanceOf(Promise);
+      target.addEventListener(eventName, fn);
+
+      removeListener(eventName, target, fn);
+
+      target.dispatchEvent(new CustomEvent(eventName));
+      expect(fn).not.toBeCalled();
     });
+  });
 
-    it('Promise должен разрешаться массивом из городов', (done) => {
-      const result = loadAndSortTowns();
+  describe('skipDefault', () => {
+    it('должна добавлять такой обработчик, который предотвращает действие по умолчанию', () => {
+      const target = document.createElement('div');
+      const eventName = 'click';
 
-      result
-        .then((towns) => {
-          expect(Array.isArray(towns));
-          expect(towns.length).toBe(50);
-          towns.forEach((town, i, towns) => {
-            expect(hasOwnProperty.call(towns, 'name'));
+      skipDefault(eventName, target);
 
-            if (i) {
-              expect(towns[i - 1].name.localeCompare(town.name)).toBeLessThanOrEqual(0);
-            }
-          });
-          done();
-        })
-        .catch(done);
+      const result = target.dispatchEvent(
+        new CustomEvent(eventName, { cancelable: true })
+      );
+      expect(!result);
+    });
+  });
+
+  describe('emulateClick', () => {
+    it('должна эмулировать клик по элементу', () => {
+      const target = document.createElement('div');
+      const eventName = 'click';
+      const fn = jest.fn();
+
+      target.addEventListener(eventName, fn);
+
+      emulateClick(target);
+
+      expect(fn).toBeCalled();
+    });
+  });
+
+  describe('delegate', () => {
+    it('должна добавлять обработчик кликов, который реагирует только на клики по кнопкам', () => {
+      const target = document.createElement('div');
+      const eventName = 'click';
+      const fn = jest.fn();
+
+      target.innerHTML = '<div></div><a href="#"></a><p></p><button></button>';
+
+      delegate(target, fn);
+
+      expect(fn).not.toBeCalled();
+      target.children[0].dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
+      expect(fn).not.toBeCalled();
+      target.children[1].dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
+      expect(fn).not.toBeCalled();
+      target.children[2].dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
+      expect(fn).not.toBeCalled();
+      target.children[3].dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
+      expect(fn).toBeCalled();
+    });
+  });
+
+  describe('once', () => {
+    it('должна добавлять обработчик кликов, который сработает только один раз и удалится', () => {
+      const target = document.createElement('div');
+      const eventName = 'click';
+      let passed = 0;
+      const fn = () => passed++;
+
+      once(target, fn);
+
+      expect(passed).toBe(0);
+      target.dispatchEvent(new CustomEvent(eventName));
+      expect(passed).toBe(1);
+      target.dispatchEvent(new CustomEvent(eventName));
+      expect(passed).toBe(1);
+      target.dispatchEvent(new CustomEvent(eventName));
     });
   });
 });

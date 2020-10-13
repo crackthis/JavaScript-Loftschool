@@ -1,82 +1,38 @@
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
-describe('ДЗ 6.2 - Фильтр городов', () => {
-  const filterPage = require('./index');
-  const homeworkContainer = document.querySelector('#homework-container');
-  let loadingBlock;
-  let filterBlock;
-  let filterInput;
-  let filterResult;
-
-  beforeAll(() => filterPage.loadTowns());
+describe('ДЗ 5.2 - Div D&D', () => {
+  const dndPage = require('./index');
+  const homeworkContainer = document.querySelector('#app');
+  let addDivButton;
 
   describe('Функциональное тестирование', () => {
-    describe('isMatching', () => {
-      it('должна определять присутствие подстроки в строке', () => {
-        expect(filterPage.isMatching('Moscow', 'moscow'));
-        expect(filterPage.isMatching('Moscow', 'mos'));
-        expect(filterPage.isMatching('Moscow', 'MoS'));
-        expect(filterPage.isMatching('Moscow', 'cow'));
-        expect(!filterPage.isMatching('Moscow', 'Berlin'));
-      });
-    });
-    describe('loadTowns', () => {
-      it('должна возвращать Promise', () => {
-        const result = filterPage.loadTowns();
-        expect(result).toBeInstanceOf(Promise);
-      });
+    describe('createDiv', () => {
+      it('должна создавать div с произвольными размерами/позицией/цветом', () => {
+        const result = dndPage.createDiv();
 
-      it('Promise должен разрешаться массивом из городов', (done) => {
-        /* eslint-disable max-nested-callbacks */
-        const result = filterPage.loadTowns();
-
-        result
-          .then((towns) => {
-            expect(Array.isArray(towns));
-            expect(towns.length).toBe(50);
-            towns.forEach((town, i, towns) => {
-              expect(hasOwnProperty.call(town, 'name'));
-
-              if (i) {
-                expect(towns[i - 1].name.localeCompare(town.name)).toBeLessThanOrEqual(0);
-              }
-            });
-            done();
-          })
-          .catch(done);
+        expect(result).toBeInstanceOf(Element);
+        expect(result.tagName).toBe('DIV');
+        expect(result.style.backgroundColor || result.style.background).not.toBe('');
+        expect(result.style.top).not.toBe('');
+        expect(result.style.left).not.toBe('');
+        expect(result.style.width).not.toBe('');
+        expect(result.style.height).not.toBe('');
       });
     });
   });
 
   describe('Интеграционное тестирование', () => {
-    it('на старнице должны быть элементы с нужными id', () => {
-      loadingBlock = homeworkContainer.querySelector('#loading-block');
-      filterBlock = homeworkContainer.querySelector('#filter-block');
-      filterInput = homeworkContainer.querySelector('#filter-input');
-      filterResult = homeworkContainer.querySelector('#filter-result');
-
-      expect(loadingBlock).toBeInstanceOf(Element);
-      expect(filterBlock).toBeInstanceOf(Element);
-      expect(filterInput).toBeInstanceOf(Element);
-      expect(filterResult).toBeInstanceOf(Element);
+    it('на старнице должна быть кнопка с id addDiv', () => {
+      addDivButton = homeworkContainer.querySelector('#addDiv');
+      expect(addDivButton).toBeInstanceOf(Element);
+      expect(addDivButton.tagName).toBe('BUTTON');
     });
 
-    it('должен показываться список городов, соответствующих фильтру', (done) => {
-      filterInput.value = 'fr';
-      filterInput.dispatchEvent(new KeyboardEvent('input'));
-      setTimeout(() => {
-        expect(filterResult.children.length).toBe(3);
-        done();
-      }, 1000);
-    });
+    it('создавать div с классом draggable-div при клике на кнопку', () => {
+      const divsCount = homeworkContainer.querySelectorAll('.draggable-div').length;
 
-    it('результат должен быть пуст, если в поле пусто', (done) => {
-      filterInput.value = '';
-      filterInput.dispatchEvent(new KeyboardEvent('input'));
-      setTimeout(() => {
-        expect(filterResult.children.length).toBe(0);
-        done();
-      }, 1000);
+      addDivButton.dispatchEvent(new MouseEvent('click', { view: window }));
+      const newDivsCount = homeworkContainer.querySelectorAll('.draggable-div').length;
+
+      expect(newDivsCount - divsCount).toBe(1);
     });
   });
 });
