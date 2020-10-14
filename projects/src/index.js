@@ -109,6 +109,7 @@ function updateFilter(filterValue) {
             fragment.append(townDiv);
         }
     }
+    filterResult.append(fragment);
 }
 
 
