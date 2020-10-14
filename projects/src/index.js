@@ -21,6 +21,8 @@ const homeworkContainer = document.querySelector('#app');
 let xPos = 0;
 let yPos = 0;
 let currentPos;
+let width = screen.width;
+let height = screen.height;
 
 document.addEventListener('mousemove', (e) => {
     if(currentPos) {
@@ -29,14 +31,18 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-export function createDiv() {
+function random(from, to) {
+    return Math.round(Math.random() * (to - from) + from);
+}
+
+function createDiv() {
     let newDiv = document.createElement("div");
-    newDiv.style.height = `${(Math.random() * 100)}px`;
-    newDiv.style.width = `${(Math.random() * 100)}px`;
-    newDiv.style.backgroundColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255} )`;
+    newDiv.style.height = `${random(1, 100)}px`;
+    newDiv.style.width = `${random(1, 100)}px`;
+    newDiv.style.backgroundColor = `rgb(${random(1, 255)}, ${random(1, 255)}, ${random(1, 255)} )`;
     newDiv.className = 'draggable-div';
-    newDiv.style.top = `${(Math.random() * 200)}px`;
-    newDiv.style.left = `${(Math.random() * 200)}px`;
+    newDiv.style.top = `${random(1, height)}px`;
+    newDiv.style.left = `${random(1, width)}px`;
     homeworkContainer.appendChild(newDiv);
     newDiv.addEventListener('mousedown', (e) => {
         currentPos = newDiv;
