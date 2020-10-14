@@ -35,25 +35,27 @@ function random(from, to) {
     return Math.round(Math.random() * (to - from) + from);
 }
 
-function createDiv() {
+export function createDiv() {
+    let maxColor = 0xffffff;
     let newDiv = document.createElement("div");
     newDiv.style.height = `${random(1, 100)}px`;
     newDiv.style.width = `${random(1, 100)}px`;
-    newDiv.style.backgroundColor = `rgb(${random(1, 255)}, ${random(1, 255)}, ${random(1, 255)} )`;
+    newDiv.style.backgroundColor = '#' + random(0, maxColor).toString(16);
     newDiv.className = 'draggable-div';
     newDiv.style.top = `${random(1, height)}px`;
     newDiv.style.left = `${random(1, width)}px`;
-    homeworkContainer.appendChild(newDiv);
     newDiv.addEventListener('mousedown', (e) => {
         currentPos = newDiv;
         xPos = e.offsetX;
         yPos = e.offsetY;
     })
-    newDiv.addEventListener('mouseup', () => currentPos = false);
+    newDiv.addEventListener('mouseup', () => (currentPos = false));
+    return newDiv;
 }
 
 const addDivButton = homeworkContainer.querySelector('#addDiv');
 
 addDivButton.addEventListener('click', function () {
-    createDiv();
+    let div = createDiv();
+    homeworkContainer.appendChild(div);
 });

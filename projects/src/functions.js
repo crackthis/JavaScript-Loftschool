@@ -12,8 +12,6 @@ function addListener(eventName, target, fn) {
    target.addEventListener(eventName, fn);
 }
 
-addListener('click', document.querySelector('a'), () => console.log('...'))
-
 /*
  Задание 2:
 
@@ -35,10 +33,10 @@ function removeListener(eventName, target, fn) {
    skipDefault('click', document.querySelector('a')) // после вызова функции, клики на указанную ссылку не должны приводить к переходу на другую страницу
  */
 function skipDefault(eventName, target) {
-    target.addEventListener(eventName, e => e.preventDefault());
+    target.addEventListener(eventName, (e) => {
+        e.preventDefault();
+    });
 }
-
-skipDefault('click', document.querySelector('a'))
 
 /*
  Задание 4:
@@ -51,8 +49,6 @@ skipDefault('click', document.querySelector('a'))
 function emulateClick(target) {
     target.dispatchEvent(new MouseEvent ("click"));
 }
-
-emulateClick(document.querySelector('a'))
 
 /*
  Задание 6:
@@ -68,8 +64,6 @@ function delegate(target, fn) {
         if(e.target.tagName === "BUTTON") fn();
     })
 }
-
-delegate(document.body, () => console.log('кликнули на button'))
 
 /*
  Задание 7:
