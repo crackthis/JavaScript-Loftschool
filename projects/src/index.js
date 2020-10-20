@@ -23,7 +23,7 @@
  Запрещено использовать сторонние библиотеки. Разрешено пользоваться только тем, что встроено в браузер
  */
 
-import './cookie.html';
+import "./cookie.html";
 
 /*
  app - это контейнер для всех ваших домашних заданий
@@ -44,12 +44,71 @@ const addValueInput = homeworkContainer.querySelector('#add-value-input');
 const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
+console.log(homeworkContainer);
+console.log(filterNameInput);
+
+let cookie = getCookies();
+let filterValue = '';
 
 filterNameInput.addEventListener('input', function () {
+    filterValue = this.value;
+    tableUpd();
 });
 
+tableUpd();
+
 addButton.addEventListener('click', () => {
+    document.cookie = `${addNameInput.value}=${addValueInput.value}`;
+    tableUpd();
 });
 
 listTable.addEventListener('click', (e) => {
+    if(e.target.dataset.role === 'delete') {
+        const name = `${e.target.dataset.name}`;
+        document.cookie = `${name}=value; max-age=0`;
+        console.log(document.cookie);
+        tableUpd();
+    }
 });
+
+function getCookies() {
+    return document.cookie
+        .split('; ')
+        .filter(Boolean)
+        .reduce((prev, current) => {
+            const [name, value] = current.split('=');
+            prev[name] = value;
+            return prev;
+        }, {})
+}
+
+function tableUpd() {
+    cookie = getCookies();
+    listTable.innerHTML = '';
+    for(let prop in cookie) {
+        if(filterValue &&
+            !prop.toLowerCase().includes(filterValue.toLowerCase())
+            &&
+            !cookie[prop].toLowerCase().includes(filterValue.toLowerCase()))
+        {
+            continue;
+        }
+        let fragment = document.createDocumentFragment();
+        const tr = document.createElement('tr');
+        const CookieNameTD = document.createElement('td');
+        const CookieValueTD = document.createElement('td');
+        const CookieDeleteTD = document.createElement('td');
+        const ButtonTD = document.createElement('button');
+        CookieNameTD.textContent = prop;
+        CookieValueTD.textContent = cookie[prop];
+        ButtonTD.innerHTML = 'Удалить';
+        ButtonTD.dataset.name = prop;
+        ButtonTD.dataset.role = 'delete';
+        tr.appendChild(CookieNameTD);
+        tr.appendChild(CookieValueTD);
+        tr.appendChild(CookieDeleteTD);
+        CookieDeleteTD.appendChild(ButtonTD);
+        fragment.append(tr);
+        listTable.append(fragment);
+    }
+}
