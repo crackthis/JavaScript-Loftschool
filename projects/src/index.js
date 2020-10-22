@@ -95,19 +95,19 @@ function tableUpd() {
         }
         let fragment = document.createDocumentFragment();
         const tr = document.createElement('tr');
-        const CookieNameTD = document.createElement('td');
-        const CookieValueTD = document.createElement('td');
-        const CookieDeleteTD = document.createElement('td');
-        const ButtonTD = document.createElement('button');
-        CookieNameTD.textContent = prop;
-        CookieValueTD.textContent = cookie[prop];
-        ButtonTD.innerHTML = 'Удалить';
-        ButtonTD.dataset.name = prop;
-        ButtonTD.dataset.role = 'delete';
-        tr.appendChild(CookieNameTD);
-        tr.appendChild(CookieValueTD);
-        tr.appendChild(CookieDeleteTD);
-        CookieDeleteTD.appendChild(ButtonTD);
+        const cookieNameTD = document.createElement('td');
+        const cookieValueTD = document.createElement('td');
+        const cookieDeleteTD = document.createElement('td');
+        const buttonTD = document.createElement('button');
+        cookieNameTD.textContent = prop;
+        cookieValueTD.textContent = cookie[prop];
+        buttonTD.innerHTML = 'Удалить';
+        buttonTD.dataset.name = prop;
+        buttonTD.dataset.role = 'delete';
+        tr.appendChild(cookieNameTD);
+        tr.appendChild(cookieValueTD);
+        tr.appendChild(cookieDeleteTD);
+        cookieDeleteTD.appendChild(buttonTD);
         fragment.append(tr);
         listTable.append(fragment);
     }
