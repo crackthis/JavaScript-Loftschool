@@ -20,8 +20,6 @@ function init(){
     }
     storageIteration-=7;
 
-    let placemarks = [];
-
     let clusterer = new ymaps.Clusterer({
         preset: 'islands#invertedVioletClusterIcons',
         groupByCoordinates: true,
@@ -141,7 +139,6 @@ function init(){
             };
             try {
                 localStorage.setItem(`${storageIteration}`, `${JSON.stringify(data)}`);
-                placemarks.push(data);
                 createPlacemark(coords);
                 closeBalloon();
             } catch (e) {
