@@ -12,8 +12,13 @@ function init(){
         zoom: 11,
 
     });
-
     let storage = localStorage;
+
+    let storageIteration = 0;
+    for(let key in storage) {
+        storageIteration++;
+    }
+    storageIteration-=7;
 
     let placemarks = [];
 
@@ -23,6 +28,25 @@ function init(){
         clusterDisableClickZoom: true,
         clusterOpenBalloonOnClick: false,
     })
+
+    function getCoords() {
+        let allCoords = [];
+        for(let prop in localStorage) {
+            if(typeof localStorage[prop] === "string" && (localStorage[prop]) !== 'INFO') {
+                let obj = JSON.parse(localStorage[prop]);
+                allCoords.push(obj.coords);
+            }
+        }
+        return allCoords;
+    }
+
+    const allCoords = getCoords();
+
+
+    for(let key of allCoords) {
+        createPlacemark(key);
+    }
+
 
     clusterer.events.add('click', (e) => {
         const coords = e.get('target').geometry.getCoordinates();
@@ -71,7 +95,16 @@ function init(){
     }
 
     function onClick(coords) {
-        const form = createForm(coords, placemarks);
+        let coordsReviewsArray = [];
+        for(let prop in localStorage) {
+            if(typeof localStorage[prop] === "string" && (localStorage[prop]) !== 'INFO') {
+                let obj = JSON.parse(localStorage[prop]);
+                let checkCoords = obj.coords;
+                if(checkCoords[0] === coords[0] && checkCoords[1] === coords[1]) coordsReviewsArray.push(obj);
+            }
+        }
+
+        const form = createForm(coords, coordsReviewsArray);
         openBalloon(coords, form.innerHTML);
     }
 
@@ -92,9 +125,10 @@ function init(){
         clusterer.add(placemark);
     }
 
+
     function onDocumentClick(e) {
         if(e.target.dataset.role === 'review-add') {
-            console.log(e);
+            storageIteration++;
             const reviewForm = document.querySelector('[data-role=review-form]');
             const coords = JSON.parse(reviewForm.dataset.coords);
             const data = {
@@ -106,6 +140,7 @@ function init(){
                 },
             };
             try {
+                localStorage.setItem(`${storageIteration}`, `${JSON.stringify(data)}`);
                 placemarks.push(data);
                 createPlacemark(coords);
                 closeBalloon();
