@@ -5,31 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link href="https://fonts.googleapis.com/css?family=Fira+Sans&display=swap" rel="stylesheet">
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=ваш API-ключ&lang=ru_RU" type="text/javascript">
-    </script>
     <title></title>
 </head>
 <body>
-    {{> "./src/templates/map.hbs"}}
+    {{> "./src/templates/app.hbs"}}
 
-    <script type="template" id="formTemplate">
-        <div class="review-address"></div>
-        <div class="review-list"></div>
-        <div class="form" data-role="review-form">
-            <h3>ВАШ ОТЗЫВ</h3>
-            <div class="field">
-                <input type="text" data-role="review-name" placeholder="Ваше имя">
-            </div>
-            <div class="field">
-                <input type="text" data-role="review-place" placeholder="Укажите место">
-            </div>
-            <div class="field">
-                <textarea rows="5" data-role="review-text" placeholder="Поделитесь впечатлениями"></textarea>
-            </div>
-
-            <button data-role="review-add">Добавить</button>
-            <span class="form-error"></span>
-        </div>
-    </script>
 </body>
 </html>

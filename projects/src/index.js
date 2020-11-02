@@ -1,155 +1,151 @@
-"use strict";
-import "./css/style.css";
+'use strict';
+import './css/style.css';
+import WSClient from './wsclient';
+import UserList from './js/userList';
+import UserPhoto from './js/userPhoto';
+import { sanitize } from './utils';
+import 'regenerator-runtime/runtime';
 
+const loginButton = document.querySelector('[data-role=login-submit]');
+const loginInput = document.querySelector('[data-role=login-name-input]');
+const loginError = document.querySelector('[data-role=login-error]');
+const loginScreen = document.querySelector('#login');
+const chatScreen = document.querySelector('#main');
 
+//SERVER CONST
+const wsclient = new WSClient(`ws://localhost:8080`, onMessage);
+const userName = document.querySelector('[data-role=user-name]');
+const userList = new UserList(document.querySelector('[data-role=user-list]'));
+const messageList = document.querySelector('[data-role=messages-list]');
+const messageSendButton = document.querySelector('[data-role=message-send-button]');
+const messageInput = document.querySelector('[data-role=message-input]');
+const userPhoto = new UserPhoto(
+  document.querySelector('[data-role=user-photo]'),
+  onUpload
+);
 
-ymaps.ready(init);
+hide(chatScreen);
 
-function init(){
-    // Создание карты.
-    let myMap = new ymaps.Map("map", {
-        center: [55.76, 37.64],
-        zoom: 11,
-
-    });
-    let storage = localStorage;
-
-    let storageIteration = 0;
-    for(let key in storage) {
-        storageIteration++;
-    }
-    storageIteration-=7;
-
-    let clusterer = new ymaps.Clusterer({
-        preset: 'islands#invertedVioletClusterIcons',
-        groupByCoordinates: true,
-        clusterDisableClickZoom: true,
-        clusterOpenBalloonOnClick: false,
-    })
-
-    function getCoords() {
-        let allCoords = [];
-        for(let prop in localStorage) {
-            if(typeof localStorage[prop] === "string" && (localStorage[prop]) !== 'INFO') {
-                let obj = JSON.parse(localStorage[prop]);
-                allCoords.push(obj.coords);
-            }
-        }
-        return allCoords;
-    }
-
-    const allCoords = getCoords();
-
-
-    for(let key of allCoords) {
-        createPlacemark(key);
-    }
-
-
-    clusterer.events.add('click', (e) => {
-        const coords = e.get('target').geometry.getCoordinates();
-        onClick(coords);
-    })
-    myMap.geoObjects.add(clusterer);
-
-    addListeners(myMap);
-    document.body.addEventListener("click", onDocumentClick)
-    myMap.controls.add('zoomControl');
-    myMap.behaviors.disable(['dblClickZoom']);
-
-    let content = document.querySelector('#formTemplate');
-
-    function addListeners(myMap) {
-        myMap.events.add("click", (e) => onClick(e.get('coords')));
-    }
-
-    function createForm(coords, reviews) {
-        let flag = 0;
-        for(let prop of reviews) {
-            if(prop.coords[0] === coords[0] && prop.coords[1] === coords[1]) flag = 1;
-        }
-        const formTemplate = document.querySelector('#formTemplate').innerHTML;
-        const form = document.createElement('div');
-        form.innerHTML = formTemplate;
-        const reviewList = form.querySelector('.review-list');
-        const reviewForm = form.querySelector('[data-role=review-form]');
-        reviewForm.dataset.coords = JSON.stringify(coords);
-        form.className = "formBalloon";
-        if(flag === 1) {
-            for (const item of reviews) {
-                const div = document.createElement('div');
-                div.classList.add('review-item');
-                div.innerHTML = `
-            <div>
-              <b>${item.review.name}</b> [${item.review.place}]
-            </div>
-            <div>${item.review.text}</div>
-            `;
-                reviewList.appendChild(div);
-            }
-        }
-
-        return form;
-    }
-
-    function onClick(coords) {
-        let coordsReviewsArray = [];
-        for(let prop in localStorage) {
-            if(typeof localStorage[prop] === "string" && (localStorage[prop]) !== 'INFO') {
-                let obj = JSON.parse(localStorage[prop]);
-                let checkCoords = obj.coords;
-                if(checkCoords[0] === coords[0] && checkCoords[1] === coords[1]) coordsReviewsArray.push(obj);
-            }
-        }
-
-        const form = createForm(coords, coordsReviewsArray);
-        openBalloon(coords, form.innerHTML);
-    }
-
-    function openBalloon(coords, content) {
-        myMap.balloon.open(coords, content);
-    }
-
-    function closeBalloon() {
-        myMap.balloon.close();
-    }
-
-    function createPlacemark(coords) {
-        const placemark = new ymaps.Placemark(coords);
-        placemark.events.add('click', (e) => {
-            const coords = e.get('target').geometry.getCoordinates();
-            onClick(coords);
-        })
-        clusterer.add(placemark);
-    }
-
-
-    function onDocumentClick(e) {
-        if(e.target.dataset.role === 'review-add') {
-            storageIteration++;
-            const reviewForm = document.querySelector('[data-role=review-form]');
-            const coords = JSON.parse(reviewForm.dataset.coords);
-            const data = {
-                coords,
-                review: {
-                    name: document.querySelector('[data-role=review-name]').value,
-                    place: document.querySelector('[data-role=review-place]').value,
-                    text: document.querySelector('[data-role=review-text]').value,
-                },
-            };
-            try {
-                localStorage.setItem(`${storageIteration}`, `${JSON.stringify(data)}`);
-                createPlacemark(coords);
-                closeBalloon();
-            } catch (e) {
-                const formError = document.querySelector('.form-error');
-                formError.innerText = e.message;
-            }
-
-        }
-    }
-
+function show(elem) {
+  elem.classList.remove('hidden');
 }
 
+function hide(elem) {
+  elem.classList.add('hidden');
+}
 
+function setUsername(elem, name) {
+  elem.textContent = name;
+}
 
+function addSystemMessage(message) {
+  const item = document.createElement('div');
+  item.classList.add('message-item', 'message-item-system');
+  item.textContent = message;
+
+  messageList.append(item);
+  messageList.scrollTop = messageList.scrollHeight;
+}
+
+function onUpload(data) {
+  userPhoto.set(data);
+  fetch('http://localhost:8080/src/upload-photo', {
+    method: 'post',
+    body: JSON.stringify({
+      name: userName.value,
+      image: data,
+    }),
+  });
+}
+
+async function onLogin(name) {
+  await wsclient.connect();
+  wsclient.sendHello(name);
+  hide(loginScreen);
+  show(chatScreen);
+  setUsername(userName, name);
+  userPhoto.set(`http://localhost:8080/src/photos/${name}.png?t=${Date.now()}`);
+}
+
+function onSend(message) {
+  wsclient.sendTextMessage(message);
+  messageInput.value = '';
+}
+
+function add(from, text, messageList) {
+  const date = new Date();
+  const hours = String(date.getHours()).padStart(2, 0);
+  const minutes = String(date.getMinutes()).padStart(2, 0);
+  const time = `${hours}:${minutes}`;
+  const item = document.createElement('div');
+
+  item.classList.add('message-item');
+  item.innerHTML = `
+    <div class="message-item-left">
+        <div style="background-image: url(src/photos/${from}.png?t=${Date.now()})" 
+        class="message-item-photo" data-role="user-avatar" data-user=${sanitize(
+          from
+        )}></div>
+    </div>
+    <div class="message-item-right">
+      <div class="message-item-header">
+          <div class="message-item-header-name">${sanitize(from)}</div>
+          <div class="message-item-header-time">${time}</div>
+      </div>
+      <div class="message-item-text">${sanitize(text)}</div>
+    </div>
+    `;
+
+  messageList.append(item);
+  messageList.scrollTop = messageList.scrollHeight;
+}
+
+messageSendButton.addEventListener('click', () => {
+  const message = messageInput.value.trim();
+  if (message) {
+    onSend(message);
+  }
+});
+
+messageInput.addEventListener('keyup', (e) => {
+  const message = messageInput.value.trim();
+  if (e.keyCode === 13) {
+    onSend(message);
+  }
+});
+
+function onMessage({ type, from, data }) {
+  console.log(type, from, data);
+
+  if (type === 'hello') {
+    userList.add(from);
+    addSystemMessage(`${from} вошёл в чат`);
+  } else if (type === 'user-list') {
+    for (const item of data) {
+      userList.add(item);
+    }
+  } else if (type === 'bye-bye') {
+    userList.remove(from);
+    addSystemMessage(`${from} вышел из чата`);
+  } else if (type === 'text-message') {
+    add(from, data.message, messageList);
+  } else if (type === 'photo-changed') {
+    const avatars = document.querySelectorAll(
+      `[data-role=user-avatar][data-user=${data.name}]`
+    );
+
+    for (const avatar of avatars) {
+      avatar.style.backgroundImage = `url(/src/photos/${data.name}.png?t=${Date.now()})`;
+    }
+  }
+}
+
+loginButton.addEventListener('click', () => {
+  loginError.textContent = '';
+  const name = loginInput.value;
+  if (!name) {
+    loginError.textContent = 'Введите логин';
+  } else {
+    onLogin(loginInput.value);
+  }
+});
