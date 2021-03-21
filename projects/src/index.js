@@ -17,21 +17,19 @@
    isAllTrue([100, 2, 3, 4, 5], n => n < 10) // вернет false
  */
 function isAllTrue(array, fn) {
-        if(typeof  fn !== 'function') {
-            throw new Error('fn is not a function');
-        }
-        if(!Array.isArray(array) || !array.length) {
-            throw new Error('empty array');
-        }
-        for(const key of array) {
-            if(fn(key) === false) {
-                return false;
-            }
-        }
-    return true;
+  if (typeof fn !== 'function') {
+    throw new Error('fn is not a function');
+  }
+  if (!Array.isArray(array) || !array.length) {
+    throw new Error('empty array');
+  }
+  for (const key of array) {
+    if (fn(key) === false) {
+      return false;
+    }
+  }
+  return true;
 }
-
-
 
 /*
  Задание 2:
@@ -50,18 +48,18 @@ function isAllTrue(array, fn) {
    isSomeTrue([1, 2, 3, 4, 5], n => n > 20) // вернет false
  */
 function isSomeTrue(array, fn) {
-    if(typeof  fn !== 'function') {
-        throw new Error('fn is not a function');
+  if (typeof fn !== 'function') {
+    throw new Error('fn is not a function');
+  }
+  if (!Array.isArray(array) || !array.length) {
+    throw new Error('empty array');
+  }
+  for (const key of array) {
+    if (fn(key) === true) {
+      return true;
     }
-    if(!Array.isArray(array) || !array.length) {
-        throw new Error('empty array');
-    }
-    for(const key of array) {
-        if(fn(key) === true) {
-            return true;
-        }
-    }
-    return false;
+  }
+  return false;
 }
 
 /*
@@ -76,30 +74,37 @@ function isSomeTrue(array, fn) {
    - fn не является функцией (с текстом "fn is not a function")
  */
 function returnBadArguments(fn, ...args) {
-    if(typeof fn !== 'function') {
-        throw new Error('fn is not a function');
+  if (typeof fn !== 'function') {
+    throw new Error('fn is not a function');
+  }
+  const arr = [];
+  let i = 0;
+  let key;
+  for (key of args) {
+    try {
+      if (fn(key)) {
+        throw new Error('false');
+      }
+    } catch (e) {
+      arr[i] = key;
+      i++;
     }
-    let arr = [];
-    let i = 0;
-    let key;
-    for(key of args) {
-        try {
-            if (fn(key)) {
-                throw new Error("false");
-            }
-        } catch (e) {
-            arr[i] = key;
-            i++;
-        }
-    }
-    return arr;
+  }
+  return arr;
 }
 
-let badArgs = returnBadArguments((en) => {
-    if(en<10) {
-     throw new Error('wrong num');
-    }
-}, 14, 15, 3, 2, 17);
+// let badArgs = returnBadArguments(
+//   (en) => {
+//     if (en < 10) {
+//       throw new Error('wrong num');
+//     }
+//   },
+//   14,
+//   15,
+//   3,
+//   2,
+//   17
+// );
 
 /*
  Задание 4:
@@ -119,43 +124,34 @@ let badArgs = returnBadArguments((en) => {
    - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
 function calculator(number = 0) {
-    if (!Number.isFinite((number))) {
-        throw new Error("number is not a number");
-    }
-    return {
-        sum(...args) {
-            let result = number;
-            for (const key of args) {
-                result += key;
-            }
-            return result;
-        },
-        dif(...args) {
-            let result = number;
-            for(const key of args) {
-                result -= key;
-            }
-            return result;
-        },
-        div(...args) {
-            let result = number;
-            for(const key of args) {
-                if(key == 0) {
-                    throw new Error('division by 0');
-                }
-                result /= key;
-            }
-            return result;
-        },
-        mul(...args) {
-            let result = number;
-            for(const key of args) {
-
-                result *= key;
-            }
-            return result;
-        }
-    }
+  if (!Number.isFinite(number)) {
+    throw new Error('number is not a number');
+  }
+  return {
+    sum(...args) {
+      const reducer = (accumulator, currentValue) => accumulator + currentValue;
+      const result = args.reduce(reducer, number);
+      return result;
+    },
+    dif(...args) {
+      const reducer = (accumulator, currentValue) => accumulator - currentValue;
+      const result = args.reduce(reducer, number);
+      return result;
+    },
+    div(...args) {
+      const reducer = (accumulator, currentValue) => {
+        if (currentValue === 0) throw new Error('division by 0');
+        return accumulator / currentValue;
+      };
+      const result = args.reduce(reducer, number);
+      return result;
+    },
+    mul(...args) {
+      const reducer = (accumulator, currentValue) => accumulator * currentValue;
+      const result = args.reduce(reducer, number);
+      return result;
+    },
+  };
 }
 
 /* При решении задач, постарайтесь использовать отладчик */
